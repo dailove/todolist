@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>todoList</title>
+    <link rel="stylesheet" href="//g.alicdn.com/msui/sm/0.6.2/css/sm.min.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div id="app">
+        <div class="page-group">
+            <div class="page page-current">
+                <!-- 标题 -->
+                <header class="bar bar-nav">
+                    <a class="icon icon-star pull-left"></a>
+                    <a class="icon icon-edit pull-right"
+                    @click = 'addflag = true'
+                    ></a>
+                    <h1 class="title">todoList</h1>
+                </header>
+                <!-- 标题 -->
+                <!-- 新增内容 -->
+                <div class="mask-box" v-show = 'addflag'>
+                    <div class="mask"></div>
+                    <div class="mask-main">
+                        <input type="text" v-model = 'msg'>
+                        <div class="btn-box">
+                            <button class="button button-danger button-fill"
+                            @click = 'addflag = false'
+                            >取消</button>
+                            <button class="button button-success button-fill"
+                            @click = 'add()'
+                            >提交</button>
+                        </div>
+                        
+                    </div>
+                </div>
+                <!-- 新增内容 -->
+                <!-- 内容 -->
+                <div class="content">
+                    <div class="card"
+                    v-for = '(todo,index) in newlist'
+                    :key = 'todo.id'
+                    >
+                        <div class="card-content">
+                          <div class="card-content-inner">{{ todo.content }}</div>
+                          <div class="button-box">
+                            <button class="button button-success"
+                            :class = '[{"button-fill":todo.f}]'
+                            @click = 'todo.f = !todo.f'
+                            >
+                                <span class="icon icon-check"></span>
+                            </button>
+                            <button class="button button-danger"
+                            @click = 'checkDone(index)' 
+                            >
+                                <span class="icon icon-remove"></span>
+                            </button>
+                          </div>
+                          
+                        </div>
+                        
+                    </div>
+                </div>
+                <!-- 内容 -->
+                <!-- 遮罩层 -->
+                <div class="mask-box" v-show = 'maskflag'
+                @click = 'maskflag = false'
+                >
+                    <div class="mask"></div>
+                    <div class="mask-content">
+                        <p>当前事件您还未完成，确定删除吗？</p>
+                        <button class="button button-fill button-warning pull-right"
+                        @click = 'del(activeIndex)'
+                        >确定</button>
+                    </div>
+                </div>
+                <!-- 遮罩层 -->
+                <!-- 尾部 -->
+                <div class="footer-box">
+                    <ul>
+                        <li
+                        v-for = 'type of types'
+                        :key = 'type.id'
+                        @click = "state = type.text"
+                        class = 'circle'
+                        :class = '["circle-"+type.style,state === type.text?"circle-fill":""]'
+                        >
+                        {{type.text}}
+                        </li>
+                    </ul>
+                </div>
+                <!-- 尾部 -->
+            </div>
+        </div>
+    </div>
+</body>
+<script src="../../base/vue.js"></script>
+<script>
+    var vm = new Vue({
+        el:'#app',
+        data:{
+            maskflag:false,
+            addflag:false,
+            activeIndex:null,
+            state:'A',
+            msg:'',
+            todos:[
+                {
+                    id:1,
+                    content:'吃饭',
+                    f:false
+                },
+                {
+                    id:2,
+                    content:'睡觉',
+                    f:false
+                },
+                {
+                    id:3,
+                    content:'打豆豆',
+                    f:false
+                }
+            ],
+            types:[
+                {
+                    id:1,
+                    text:'A',
+                    style:'all'
+                },
+                {
+                    id:2,
+                    text:'F',
+                    style:'finished'
+                },
+                {
+                    id:3,
+                    text:'U',
+                    style:'unfinish'
+                }
+            ]
+        },
+        methods:{
+            checkDone(index){
+                if(this.todos[index].f == false){
+                    this.maskflag = true;
+                    this.activeIndex = index;
+                    return false;
+                }else{
+                    this.remove(index)
+                }
+            },
+            remove(index){
+                return this.todos.splice(index,1)
+            },
+            del(index){
+                this.remove(index)
+            },
+            add(){
+                
+                this.todos.push({
+                    id:this.todos.length+1,
+                    content:this.msg,
+                    f:false
+                })
+                this.msg = '';
+                this.addflag = false;
+            }
+        },
+        computed:{
+            finished(){
+                return this.todos.filter((item) => {
+                    return item.f?item:false
+                })
+            },
+            unfinish(){
+                return this.todos.filter((item) => {
+                    return !item.f?item:false
+                })
+            },
+            newlist(){
+                switch(this.state){
+                    case 'A':
+                    return this.todos;
+                    break;
+                    case 'U':
+                    return this.unfinish;
+                    break;
+                    case 'F':
+                    return this.finished;
+                    break;
+
+
+                }
+            }
+        }
+    })
+</script>
+</html>
